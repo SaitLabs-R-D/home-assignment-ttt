@@ -31,6 +31,13 @@ function onMove(ws, data) {
   };
 
   game[ws.id].players.forEach((player) => {
+    console.log({
+      type: "move",
+      sign: player.sign,
+      turn: game[ws.id].turn,
+      tsy: game[ws.id].tsy,
+      status: game[ws.id].status,
+    });
     player.ws.send(
       JSON.stringify({
         type: "move",
@@ -47,26 +54,24 @@ function onStart(ws, data) {
   ws.id = data.code;
 
   // first person log's in
-  if (typeof game[data.code] === "undefined") {
-    game[data.code] = {
+  if (typeof game[ws.id] === "undefined") {
+    game[ws.id] = {
       tsy: "000000000",
       status: "waiting",
       turn: randomTurn(),
       players: [{ ws, sign: randomTurn() }],
     };
-    return ws.send(
-      JSON.stringify({ type: "settings", data: "Waiting for player b.." })
-    );
+    return ws.send(JSON.stringify({ type: "start", data: "Waiting" }));
   }
 
   // game already has 1 player
-  if (game[data.code].players.length == 1) {
-    const toggledSign = toggleTurn(game[data.code].players[0].sign);
+  if (game[ws.id].players.length == 1) {
+    const toggledSign = toggleTurn(game[ws.id].players[0].sign);
 
-    game[data.code].players.push({ ws, sign: toggledSign });
-    game[data.code].status = "Continue";
+    game[ws.id].players.push({ ws, sign: toggledSign });
+    game[ws.id].status = "Continue";
 
-    game[data.code].players.forEach((player) => {
+    game[ws.id].players.forEach((player) => {
       const { turn, tsy, status } = game[data.code];
 
       player.ws.send(
@@ -82,7 +87,7 @@ function onStart(ws, data) {
     return;
   }
 
-  ws.send(JSON.stringify({ type: "settings", data: "Game is full" }));
+  ws.send(JSON.stringify({ type: "start", data: "Game is full" }));
 }
 
 server.listen(3000, () => console.log("Server started"));
