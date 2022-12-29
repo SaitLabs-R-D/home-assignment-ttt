@@ -1,10 +1,10 @@
 const express = require("express");
-const app = express();
-const server = require("http").Server(app);
-const ws = require("ws");
+const WebSocket = require("ws");
 const { updateTsy, checkWin, toggleTurn, randomTurn } = require("./helper");
 
-const wss = new ws.Server({ server });
+const app = express();
+const server = require("http").Server(app);
+const wss = new WebSocket.Server({ server });
 const game = {};
 
 wss.on("connection", (ws) => {
